@@ -1,0 +1,4 @@
+class Login {
+    static login() {
+    }
+}
