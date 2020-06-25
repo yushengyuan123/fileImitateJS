@@ -6,6 +6,9 @@ import {position} from "../operation/interface";
 class PositionViews {
     private views: Array<any> = new Array<any>();
 
+    //一行拥有的数量
+    private rows_number: number = 10
+
     //列
     private rows: number = 2;
 
@@ -45,7 +48,19 @@ class PositionViews {
 
     //行列转位物理块号
     public transformIndex(columns: number, rows: number): number {
-        return 10 * rows  + columns;
+        return this.rows_number * rows  + columns;
+    }
+
+    //物理块号转为行列
+    public transformRows(index: number): position {
+        const rows = Math.floor(index / this.rows_number);
+
+        const columns = index % this.rows_number - 1
+
+        return {
+            rows: rows,
+            columns: columns
+        }
     }
 
     /**

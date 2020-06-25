@@ -1,10 +1,10 @@
-class DiscBlock {
+/**
+ * 盘块
+ */
+export class DiscBlock {
     //物理块号下标
-    public index: number
+    public index: number = null;
 
-    //下一块的指针
-    public nextIndex: number
-
-    //块的大小
-    public
+    //下一块的指针,指向它的物理块号
+    public nextIndex: number = null;
 }
