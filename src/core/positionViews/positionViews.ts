@@ -75,6 +75,16 @@ class PositionViews {
         }
     }
 
+    //去除删除掉的文件
+    public removeUsed(columns: number, rows: number): boolean {
+        if (this.views[columns][rows]) {
+            this.views[columns][rows] = 0;
+            return true
+        } else {
+            return false
+        }
+    }
+
     //获得为位示图
     public getViews(): void {
         console.log(this.views)

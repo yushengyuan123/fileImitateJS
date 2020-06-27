@@ -23,6 +23,11 @@ class Disc {
         }
     }
 
+    //获取某一个物理盘块的信息
+    public getOneDiscBlocksInfo(index: number): DiscBlock {
+        return this.discBlocks[index]
+    }
+
     //获得这个盘块的信息
     public getDiscBlocks(): Array<DiscBlock>{
         return this.discBlocks

@@ -33,7 +33,8 @@ export function setViewsOne(indexArray: Array<number>): void {
 }
 
 /**
- * 给盘区的下一块指针赋值
+ * 给盘区的下一块指针赋值,参数是所占用磁盘的物理块号数组
+ * @param indexArray
  */
 export function valuesPointer(indexArray: Array<number>): boolean{
     for (let i = 0; i < indexArray.length - 1; i++) {

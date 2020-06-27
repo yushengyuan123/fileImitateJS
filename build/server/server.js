@@ -40,6 +40,11 @@ app.post('/files/*', (request, response) => {
         //文件查询接口
         case '/files/query': {
             filesService_1.FilesService.queryFiles(request, response);
+            break;
+        }
+        case '/files/delete': {
+            filesService_1.FilesService.deleteFiles(request, response);
+            break;
         }
     }
 });

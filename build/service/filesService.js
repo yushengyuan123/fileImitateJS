@@ -7,6 +7,7 @@ const positionViews_1 = require("../core/positionViews/positionViews");
 const userCatalogue_1 = require("../core/catalogue/userCatalogue");
 const otherUtils_1 = require("../core/utils/otherUtils");
 const update_1 = require("../core/operation/update");
+const delete_1 = require("../core/operation/delete");
 class FilesService {
     /**
      * 这里需要接受前端的文件名字，路径，文件类型,文件内容
@@ -66,6 +67,17 @@ class FilesService {
             console.log(e.message);
             response.json(Results.failBean(e.message));
         }
+    }
+    static deleteFiles(request, response) {
+        const name = request.body.file_name;
+        const path = request.body.file_path;
+        const type = request.body.type === 'txt' ? core_1.file_type.txt : core_1.file_type.folder;
+        const result = new resultBean_1.ResultBean();
+        console.log(name);
+        console.log(path);
+        console.log(type);
+        delete_1.deleteFiles(path, name, type);
+        response.json(result.successBean('删除成功'));
     }
 }
 exports.FilesService = FilesService;

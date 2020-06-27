@@ -19,6 +19,10 @@ class Disc {
             this.discBlocks[i].index = i;
         }
     }
+    //获取某一个物理盘块的信息
+    getOneDiscBlocksInfo(index) {
+        return this.discBlocks[index];
+    }
     //获得这个盘块的信息
     getDiscBlocks() {
         return this.discBlocks;

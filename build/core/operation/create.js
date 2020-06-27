@@ -16,7 +16,7 @@ exports.create = function (file_name, config) {
     //获取第一块空闲区域，包含了空闲盘块的行和列信息。
     const freeRegion = positionViews_1.views.getFirstFreesRegion();
     let size;
-    //新建立文件的崇明校验
+    //新建立文件的重名校验
     verify_1.Verify.pathIsTheSame(config.path, file_name);
     if (typeof freeRegion !== "boolean") {
         //获取文件的大小
@@ -35,7 +35,7 @@ exports.create = function (file_name, config) {
         //如果是folder才更新目录的所有指针,创建一个新的目录
         if (config.fileType === index_1.file_type.folder) {
             const catalogue = new catalogue_1.Catalogue();
-            writeFCBInCatalogue(fcb, config, catalogue);
+            writeFCBInCatalogue(fcb, config, file_name, catalogue);
         }
         //改变磁盘空间
         if (!diskUtils_1.decreaseDiskSpace(size)) {
@@ -52,7 +52,7 @@ exports.create = function (file_name, config) {
  * 将FCB写入Array<FCB>中
  * 无论是什么文件类型都把FCB和目录都分别插入两个数组中，方便查询
  */
-function writeFCBInCatalogue(fcb, config, catalogue) {
+function writeFCBInCatalogue(fcb, config, file_name, catalogue) {
     //当前用户
     const user = index_1.currentUser;
     //多少层的目录
@@ -81,8 +81,10 @@ function writeFCBInCatalogue(fcb, config, catalogue) {
         }
     }
     if (catalogue) {
+        //todo 这里还有一个用户名是没有赋值的，不知道有没有必要
         temp.child.push(catalogue);
         catalogue.parent = temp;
+        catalogue.path = matchStr + '/' + file_name;
     }
     else {
         temp.files_list.push(fcb);
@@ -151,6 +153,8 @@ function initFCB(file_name, config, freeRegion, size) {
     if (typeof freeRegion !== "boolean") {
         fcb.physical_position = positionViews_1.views.transformIndex(freeRegion.columns, freeRegion.rows);
     }
+    //通过文件大小和单个盘块占用空间得到所占用的盘块数目
+    fcb.occupy_number = Math.ceil(size / index_1.discBlockSize);
     //设置文件名称
     fcb.file_name = file_name;
     //设置文件类型

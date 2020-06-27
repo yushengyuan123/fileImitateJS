@@ -24,7 +24,7 @@ export let create = function (file_name: string, config: {
     const freeRegion: position | boolean = views.getFirstFreesRegion()
     let size;
 
-    //新建立文件的崇明校验
+    //新建立文件的重名校验
     Verify.pathIsTheSame(config.path, file_name);
 
     if (typeof freeRegion !== "boolean") {
@@ -47,7 +47,7 @@ export let create = function (file_name: string, config: {
         //如果是folder才更新目录的所有指针,创建一个新的目录
         if (config.fileType === file_type.folder) {
             const catalogue: Catalogue = new Catalogue();
-            writeFCBInCatalogue(fcb, config, catalogue);
+            writeFCBInCatalogue(fcb, config, file_name, catalogue);
         }
 
         //改变磁盘空间
@@ -65,7 +65,7 @@ export let create = function (file_name: string, config: {
  * 将FCB写入Array<FCB>中
  * 无论是什么文件类型都把FCB和目录都分别插入两个数组中，方便查询
  */
-function writeFCBInCatalogue(fcb: FCB, config: config, catalogue ?: Catalogue) {
+function writeFCBInCatalogue(fcb: FCB, config: config, file_name?: string, catalogue ?: Catalogue) {
     //当前用户
     const user: string = currentUser;
     //多少层的目录
@@ -99,8 +99,10 @@ function writeFCBInCatalogue(fcb: FCB, config: config, catalogue ?: Catalogue) {
     }
 
     if (catalogue) {
+        //todo 这里还有一个用户名是没有赋值的，不知道有没有必要
         temp.child.push(catalogue)
         catalogue.parent = temp
+        catalogue.path = matchStr + '/' + file_name
     } else {
         temp.files_list.push(fcb)
     }
@@ -122,7 +124,7 @@ function setDiscBlock(freeRegion: position | boolean, fcb: FCB) {
     //文件会占用的盘区的数目
     const occupy_number = Math.ceil(file_size / discBlockSize);
     //寻找有没有这么多的盘块数目，获取当前空闲盘块数目和下标,得到的是物理块号数组
-    const free_blocks = getCurrentFreeBlocksIndexAndNumber(occupy_number);
+    const free_blocks: Array<number> | boolean = getCurrentFreeBlocksIndexAndNumber(occupy_number);
 
     if (typeof free_blocks !== 'boolean') {
         //开始初始化这个盘块的信息和位示图置为1
@@ -177,6 +179,8 @@ function initFCB(file_name: string, config: {
     if (typeof freeRegion !== "boolean") {
         fcb.physical_position = views.transformIndex(freeRegion.columns, freeRegion.rows)
     }
+    //通过文件大小和单个盘块占用空间得到所占用的盘块数目
+    fcb.occupy_number = Math.ceil(size / discBlockSize);
     //设置文件名称
     fcb.file_name = file_name
     //设置文件类型

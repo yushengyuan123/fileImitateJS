@@ -31,7 +31,8 @@ function setViewsOne(indexArray) {
 }
 exports.setViewsOne = setViewsOne;
 /**
- * 给盘区的下一块指针赋值
+ * 给盘区的下一块指针赋值,参数是所占用磁盘的物理块号数组
+ * @param indexArray
  */
 function valuesPointer(indexArray) {
     for (let i = 0; i < indexArray.length - 1; i++) {

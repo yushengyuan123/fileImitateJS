@@ -47,6 +47,12 @@ app.post('/files/*', (request: any, response: any) => {
         //文件查询接口
         case '/files/query': {
             FilesService.queryFiles(request, response);
+            break
+        }
+
+        case '/files/delete': {
+            FilesService.deleteFiles(request, response);
+            break
         }
     }
 })

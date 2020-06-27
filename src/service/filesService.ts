@@ -6,6 +6,7 @@ import {UserRoot} from "../core/catalogue/userCatalogue";
 import {queryFiles} from "../core/utils/otherUtils";
 import {queryFilesFormat} from "../core/operation/interface";
 import {updateFiles} from "../core/operation/update";
+import {deleteFiles} from "../core/operation/delete";
 
 export class FilesService {
     /**
@@ -74,5 +75,22 @@ export class FilesService {
             console.log(e.message)
             response.json(Results.failBean(e.message));
         }
+    }
+
+    public static deleteFiles(request: any, response: any): void {
+        const name = request.body.file_name;
+        const path = request.body.file_path;
+        const type: file_type = request.body.type === 'txt' ? file_type.txt : file_type.folder;
+        const result: ResultBean = new ResultBean();
+
+        console.log(name)
+        console.log(path)
+        console.log(type)
+
+        deleteFiles(path, name, type)
+
+        response.json(result.successBean('删除成功'))
+
+
     }
 }
