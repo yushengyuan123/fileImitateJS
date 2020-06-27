@@ -9,7 +9,7 @@ class PositionViews {
     //一行拥有的数量
     private rows_number: number = 10
 
-    //列
+    //列.
     private rows: number = 2;
 
     //行
@@ -55,7 +55,7 @@ class PositionViews {
     public transformRows(index: number): position {
         const rows = Math.floor(index / this.rows_number);
 
-        const columns = index % this.rows_number - 1
+        const columns = index % this.rows_number
 
         return {
             rows: rows,

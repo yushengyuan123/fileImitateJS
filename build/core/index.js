@@ -1,6 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * 当前使用的用户的username
+ */
+//todo 记得以后删了
+exports.currentUser = '15521064831';
+/**
+ * 用户当前目录
+ */
+exports.currentCatalogue = '/';
+/**
  * MB单位
  */
 exports.MB = 1024;
@@ -36,3 +45,9 @@ var file_type;
     file_type[file_type["folder"] = 0] = "folder";
     file_type[file_type["txt"] = 1] = "txt";
 })(file_type = exports.file_type || (exports.file_type = {}));
+var operation_muster;
+(function (operation_muster) {
+    operation_muster[operation_muster["crete"] = 0] = "crete";
+    operation_muster[operation_muster["update"] = 1] = "update";
+    operation_muster[operation_muster["delete"] = 2] = "delete";
+})(operation_muster = exports.operation_muster || (exports.operation_muster = {}));

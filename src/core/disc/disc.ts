@@ -9,6 +9,7 @@ class Disc {
     public discBlocks: Array<DiscBlock>;
 
     constructor() {
+        this.discBlocks = new Array<DiscBlock>();
         this.initBlocks();
     }
 

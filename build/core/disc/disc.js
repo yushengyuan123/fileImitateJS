@@ -7,6 +7,7 @@ const index_1 = require("../index");
  */
 class Disc {
     constructor() {
+        this.discBlocks = new Array();
         this.initBlocks();
     }
     //初始化盘区

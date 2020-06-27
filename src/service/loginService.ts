@@ -1,5 +1,6 @@
 import {UserDao} from "../dao/userDao";
 import {ResultBean} from "../utils/resultBean";
+import {currentUser} from "../core";
 
 export class loginService {
     public static loginDeal(
@@ -8,13 +9,15 @@ export class loginService {
         cb ?: Function): void {
             let dao: UserDao = new UserDao()
             dao.selectSql().then(res => {
-                const results = JSON.stringify(JSON.parse(res))
+                const results: any = JSON.parse(JSON.stringify(res))
                 const resultBean = new ResultBean()
 
                 for (let i = 0; i < results.length; i++) {
                     //登陆成功
-                    if (username === res[i].username &&
-                        password === res[i].password) {
+                    if (username === results[i].username &&
+                        password === results[i].password) {
+                        // @ts-ignore
+                        currentUser = username
                         if (cb) {
                             try {
                                 cb(resultBean.successBean('登陆成功'))

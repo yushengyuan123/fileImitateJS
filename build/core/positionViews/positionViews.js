@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class PositionViews {
     constructor() {
         this.views = new Array();
-        //列
+        //一行拥有的数量
+        this.rows_number = 10;
+        //列.
         this.rows = 2;
         //行
         this.columns = 10;
@@ -36,7 +38,16 @@ class PositionViews {
     }
     //行列转位物理块号
     transformIndex(columns, rows) {
-        return 10 * rows + columns;
+        return this.rows_number * rows + columns;
+    }
+    //物理块号转为行列
+    transformRows(index) {
+        const rows = Math.floor(index / this.rows_number);
+        const columns = index % this.rows_number;
+        return {
+            rows: rows,
+            columns: columns
+        };
     }
     /**
      * 设置某个下标的区域已经使用
