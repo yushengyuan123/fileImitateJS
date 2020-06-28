@@ -18,6 +18,7 @@ export function deleteFiles(path: string, name: string, type: file_type) {
     const deleteCatalogue: Catalogue = entryCatalogue(path);
     let deleteFCB: FCB;
 
+    //todo 还没有还原磁盘空间
     //这里还要注意假如删除的是文件夹，那么还要移除catalogue数组，如果只是txt则不需要
     for (let i = 0, list = deleteCatalogue.files_list; i < list.length; i++) {
         if (name === list[i].file_name) {
@@ -43,9 +44,7 @@ export function deleteFiles(path: string, name: string, type: file_type) {
         } else {
             concatPath = path + '/' + name;
         }
-        console.log(concatPath)
         for (let i = 0, list = deleteCatalogue.child; i < list.length; i++) {
-            console.log(list[i].path)
             if (list[i].path === concatPath) {
                 let index: number = list.indexOf(list[i]);
                 if (index > -1) {
@@ -94,9 +93,3 @@ export function removeFromViews(deleteFCB: FCB) {
 
 }
 
-/**
- * 从磁盘分区移除
- */
-export function removeFromCatalogueList() {
-
-}

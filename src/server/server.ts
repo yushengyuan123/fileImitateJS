@@ -54,6 +54,11 @@ app.post('/files/*', (request: any, response: any) => {
             FilesService.deleteFiles(request, response);
             break
         }
+
+        case '/files/content': {
+            FilesService.updateContent(request, response);
+            break
+        }
     }
 })
 

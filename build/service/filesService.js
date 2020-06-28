@@ -8,6 +8,7 @@ const userCatalogue_1 = require("../core/catalogue/userCatalogue");
 const otherUtils_1 = require("../core/utils/otherUtils");
 const update_1 = require("../core/operation/update");
 const delete_1 = require("../core/operation/delete");
+const updateContent_1 = require("../core/operation/updateContent");
 class FilesService {
     /**
      * 这里需要接受前端的文件名字，路径，文件类型,文件内容
@@ -20,10 +21,6 @@ class FilesService {
         const type = request.body.type === 'txt' ? core_1.file_type.txt : core_1.file_type.folder;
         const content = request.body.content;
         const results = new resultBean_1.ResultBean();
-        console.log(file_name);
-        console.log(path);
-        console.log(type);
-        console.log(content);
         create_1.create(file_name, {
             path: path,
             content: content,
@@ -32,7 +29,7 @@ class FilesService {
             recentReadTime: null,
         });
         console.log(positionViews_1.views.getViews());
-        console.log(userCatalogue_1.UserRoot);
+        console.log(userCatalogue_1.UserRoot[0].files_list[0]);
         response.json(results.successBean('创建成功'));
     }
     /**
@@ -55,12 +52,10 @@ class FilesService {
     static updateFiles(request, response) {
         const name = request.body.file_name;
         const path = request.body.file_path;
-        const content = request.body.content;
         const beforeName = request.body.beforeName;
-        const type = request.body.type === 'txt' ? core_1.file_type.txt : core_1.file_type.folder;
         const Results = new resultBean_1.ResultBean();
         try {
-            update_1.updateFiles(name, beforeName, path, content, type);
+            update_1.updateFiles(name, beforeName, path);
             response.json(Results.successBean('修改文件成功'));
         }
         catch (e) {
@@ -78,6 +73,19 @@ class FilesService {
         console.log(type);
         delete_1.deleteFiles(path, name, type);
         response.json(result.successBean('删除成功'));
+    }
+    static updateContent(request, response) {
+        const name = request.body.file_name;
+        const path = request.body.file_path;
+        const content = request.body.content;
+        const beforeContent = request.body.beforeContent;
+        const result = new resultBean_1.ResultBean();
+        // try {
+        updateContent_1.updateFilesContent(name, path, content, beforeContent);
+        response.json(result.successBean('修改成功'));
+        // } catch (e) {
+        //     response.json(result.failBean(e.message))
+        // }
     }
 }
 exports.FilesService = FilesService;

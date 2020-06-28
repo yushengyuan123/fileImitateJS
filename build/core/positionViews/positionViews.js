@@ -73,7 +73,7 @@ class PositionViews {
     }
     //获得为位示图
     getViews() {
-        console.log(this.views);
+        return this.views;
     }
 }
 //导出这片盘区

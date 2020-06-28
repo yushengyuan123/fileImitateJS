@@ -37,7 +37,7 @@ export let discBlock_number: number = discSize / discBlockSize
 /**
  * 规定一个folder是256字节
  */
-export const folderSize = 256
+export const folderSize = 0;
 
 /**
  * 规定一个文字是8个字节

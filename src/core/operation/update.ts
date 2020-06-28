@@ -13,23 +13,16 @@ export function updateFiles(
     name: string,
     beforeName: string,
     path: string,
-    content: string,
-    type: file_type
 ): void {
     //新名字和旧的名字一样就不用检验了
     if (beforeName === name) {
         return
     }
+
     //todo 假如文件中有/，我肯定出bug
     Verify.pathIsTheSame(path, name);
 
-    if (type === file_type.folder) {
-        //当只是文件夹的时候指用更新名字就可以了
-        updateFolder(name, beforeName, path);
-    } else if (type === file_type.txt) {
-        //todo txt文件的修改
-    }
-
+    updateFolder(name, beforeName, path);
 }
 
 /**
@@ -78,12 +71,13 @@ export function updateFolder(
 
     for (let i = 0, list = temp.files_list; i < list.length; i++) {
         if (list[i].file_name === beforeName) {
-            //更新名字。同时也要更新路径
+            //更新名字
             list[i].file_name = name
             break
         }
     }
 
+    //更新路径
     for (let i = 0, list = temp.child; i < list.length; i++) {
         if (list[i].path === path) {
             //提取字符,如/hi,则结果为:/，假如/hi/nihao,则结果为/hi/

@@ -86,8 +86,8 @@ class PositionViews {
     }
 
     //获得为位示图
-    public getViews(): void {
-        console.log(this.views)
+    public getViews(): Array<any> {
+        return this.views
     }
 }
 

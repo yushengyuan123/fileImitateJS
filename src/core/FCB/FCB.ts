@@ -18,7 +18,7 @@ export class FCB {
     private _size: number;
 
     //文件内容
-    private _content: string;
+    private _content: string = "";
 
     //文件类型，是文件夹还是txt文件
     private _type: file_type;

@@ -46,6 +46,10 @@ app.post('/files/*', (request, response) => {
             filesService_1.FilesService.deleteFiles(request, response);
             break;
         }
+        case '/files/content': {
+            filesService_1.FilesService.updateContent(request, response);
+            break;
+        }
     }
 });
 app.listen(8085, function openServer() {

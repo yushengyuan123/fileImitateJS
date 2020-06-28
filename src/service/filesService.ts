@@ -7,6 +7,7 @@ import {queryFiles} from "../core/utils/otherUtils";
 import {queryFilesFormat} from "../core/operation/interface";
 import {updateFiles} from "../core/operation/update";
 import {deleteFiles} from "../core/operation/delete";
+import {updateFilesContent} from "../core/operation/updateContent";
 
 export class FilesService {
     /**
@@ -21,11 +22,6 @@ export class FilesService {
         const content: string = request.body.content;
         const results: ResultBean = new ResultBean();
 
-        console.log(file_name)
-        console.log(path)
-        console.log(type)
-        console.log(content)
-
         create(file_name, {
             path: path,
             content: content,
@@ -35,7 +31,7 @@ export class FilesService {
         });
 
         console.log(views.getViews())
-        console.log(UserRoot)
+        console.log(UserRoot[0].files_list[0])
 
         response.json(results.successBean('创建成功'))
     }
@@ -63,13 +59,11 @@ export class FilesService {
     public static updateFiles(request: any, response: any): void {
         const name = request.body.file_name;
         const path = request.body.file_path;
-        const content = request.body.content;
         const beforeName = request.body.beforeName ;
-        const type: file_type = request.body.type === 'txt' ? file_type.txt : file_type.folder;
         const Results: ResultBean = new ResultBean();
 
         try {
-            updateFiles(name, beforeName, path, content, type);
+            updateFiles(name, beforeName, path);
             response.json(Results.successBean('修改文件成功'))
         } catch(e) {
             console.log(e.message)
@@ -90,7 +84,21 @@ export class FilesService {
         deleteFiles(path, name, type)
 
         response.json(result.successBean('删除成功'))
-
-
     }
+
+    public static updateContent(request: any, response: any) {
+        const name = request.body.file_name;
+        const path = request.body.file_path;
+        const content = request.body.content;
+        const beforeContent = request.body.beforeContent;
+        const result: ResultBean = new ResultBean();
+
+        // try {
+            updateFilesContent(name, path, content, beforeContent)
+            response.json(result.successBean('修改成功'))
+        // } catch (e) {
+        //     response.json(result.failBean(e.message))
+        // }
+    }
+
 }

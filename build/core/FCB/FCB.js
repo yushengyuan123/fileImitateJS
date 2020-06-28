@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class FCB {
-    constructor() { }
+    constructor() {
+        //文件内容
+        this._content = "";
+    }
     get recentlyReadTime() {
         return this._recentlyReadTime;
     }

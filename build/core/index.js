@@ -32,7 +32,7 @@ exports.discBlock_number = exports.discSize / exports.discBlockSize;
 /**
  * 规定一个folder是256字节
  */
-exports.folderSize = 256;
+exports.folderSize = 0;
 /**
  * 规定一个文字是8个字节
  */

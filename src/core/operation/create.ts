@@ -1,5 +1,5 @@
 import {views} from "../positionViews/positionViews";
-import {currentUser, discBlockSize, file_type, folderSize, fontSize, operation_muster} from "../index";
+import {currentUser, discBlockSize, file_type, folderSize, fontSize} from "../index";
 import {config, position} from "./interface";
 import {FCB} from "../FCB/FCB";
 import {decreaseDiskSpace} from "../utils/diskUtils";
@@ -27,6 +27,8 @@ export let create = function (file_name: string, config: {
     //新建立文件的重名校验
     Verify.pathIsTheSame(config.path, file_name);
 
+    //todo 更新完这个TXT的大小内容，接下来就要更新它所在上一级目录的内存占用情况。更目录除外,同时还要更新磁盘的空间
+
     if (typeof freeRegion !== "boolean") {
         //获取文件的大小
         if (config.fileType === file_type.folder) {
@@ -39,7 +41,7 @@ export let create = function (file_name: string, config: {
         const fcb: FCB = initFCB(file_name, config, freeRegion, size);
 
         //改变磁盘的盘块的指针信息
-        setDiscBlock(freeRegion, fcb);
+        setDiscBlock(freeRegion, fcb, config.fileType);
 
         //将FCB写入目录信息中
         writeFCBInCatalogue(fcb, config);
@@ -114,7 +116,7 @@ function writeFCBInCatalogue(fcb: FCB, config: config, file_name?: string, catal
  * 第二：要把位示图中所占用的盘块数值全部置为1
  * 第三：要设置好盘块下一个盘块的指针的值
  */
-function setDiscBlock(freeRegion: position | boolean, fcb: FCB) {
+function setDiscBlock(freeRegion: position | boolean, fcb: FCB, type: file_type) {
     if (typeof freeRegion === "boolean") {
         return
     }
@@ -122,18 +124,21 @@ function setDiscBlock(freeRegion: position | boolean, fcb: FCB) {
     //获得文件的大小
     const file_size = fcb.size;
     //文件会占用的盘区的数目
-    const occupy_number = Math.ceil(file_size / discBlockSize);
+    const occupy_number = fcb.occupy_number;
     //寻找有没有这么多的盘块数目，获取当前空闲盘块数目和下标,得到的是物理块号数组
     const free_blocks: Array<number> | boolean = getCurrentFreeBlocksIndexAndNumber(occupy_number);
 
     if (typeof free_blocks !== 'boolean') {
         //开始初始化这个盘块的信息和位示图置为1
-        setViewsOne(free_blocks);
-        //盘块的下一个指针赋值
-        if (!valuesPointer(free_blocks)) {
-            throw new Error('赋值异常，某个盘块已经被占用了')
+        console.log('类型', type)
+        if (type === file_type.txt) {
+            console.log('我进来了', free_blocks)
+            setViewsOne(free_blocks)
+            //盘块的下一个指针赋值
+            if (!valuesPointer(free_blocks)) {
+                throw new Error('赋值异常，某个盘块已经被占用了')
+            }
         }
-
     } else {
         throw new Error('当前空间不足够')
     }
@@ -144,18 +149,15 @@ function setDiscBlock(freeRegion: position | boolean, fcb: FCB) {
  * @param type
  * @param content
  */
-function getFileSize(type: file_type, content?: string): number {
+export function getFileSize(type: file_type, content?: string): number {
     if (file_type.folder === type) {
         return folderSize
     } else {
-        console.log(type)
-        console.log(content)
-        if (content) {
+        if (content !== null) {
             const len = content.length
             return len * fontSize
-        } else {
-            throw new Error('content参数没有传进来')
         }
+        return 0
     }
 }
 
@@ -177,10 +179,18 @@ function initFCB(file_name: string, config: {
     const fcb: FCB = new FCB();
     //设置物理块号
     if (typeof freeRegion !== "boolean") {
-        fcb.physical_position = views.transformIndex(freeRegion.columns, freeRegion.rows)
+        if (config.fileType === file_type.txt) {
+            fcb.physical_position = views.transformIndex(freeRegion.columns, freeRegion.rows)
+        } else {
+            fcb.physical_position = null
+        }
     }
-    //通过文件大小和单个盘块占用空间得到所占用的盘块数目
-    fcb.occupy_number = Math.ceil(size / discBlockSize);
+    //设置占用盘块数目，目录文件设置不占用盘块
+    if (config.fileType === file_type.txt) {
+        fcb.occupy_number = 1;
+    } else {
+        fcb.occupy_number = 0;
+    }
     //设置文件名称
     fcb.file_name = file_name
     //设置文件类型
