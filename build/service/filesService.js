@@ -82,6 +82,7 @@ class FilesService {
         const result = new resultBean_1.ResultBean();
         // try {
         updateContent_1.updateFilesContent(name, path, content, beforeContent);
+        console.log(positionViews_1.views.getViews());
         response.json(result.successBean('修改成功'));
         // } catch (e) {
         //     response.json(result.failBean(e.message))

@@ -12,9 +12,9 @@ class PositionViews {
         this.initViews();
     }
     initViews() {
-        for (let i = 0; i < this.columns; i++) {
+        for (let i = 0; i < this.rows; i++) {
             this.views[i] = [];
-            for (let j = 0; j < this.rows; j++) {
+            for (let j = 0; j < this.columns; j++) {
                 this.views[i][j] = 0;
             }
         }
@@ -23,12 +23,12 @@ class PositionViews {
      * 获得第一块空闲的区域下标
      */
     getFirstFreesRegion() {
-        for (let i = 0; i < this.columns; i++) {
-            for (let j = 0; j < this.rows; j++) {
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.columns; j++) {
                 if (this.views[i][j] === 0) {
                     return {
-                        columns: i,
-                        rows: j
+                        rows: i,
+                        columns: j
                     };
                 }
             }
@@ -53,8 +53,8 @@ class PositionViews {
      * 设置某个下标的区域已经使用
      */
     setHasUsed(columns, rows) {
-        if (!this.views[columns][rows]) {
-            this.views[columns][rows] = 1;
+        if (!this.views[rows][columns]) {
+            this.views[rows][columns] = 1;
             return true;
         }
         else {
@@ -63,8 +63,8 @@ class PositionViews {
     }
     //去除删除掉的文件
     removeUsed(columns, rows) {
-        if (this.views[columns][rows]) {
-            this.views[columns][rows] = 0;
+        if (this.views[rows][columns]) {
+            this.views[rows][columns] = 0;
             return true;
         }
         else {

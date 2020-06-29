@@ -95,6 +95,8 @@ export class FilesService {
 
         // try {
             updateFilesContent(name, path, content, beforeContent)
+
+            console.log(views.getViews())
             response.json(result.successBean('修改成功'))
         // } catch (e) {
         //     response.json(result.failBean(e.message))

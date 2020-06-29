@@ -35,7 +35,6 @@ function queryFiles(path) {
         }
     }
     const files_list = [];
-    //todo 这里文件内容没有返回成功
     for (let i = 0, list = temp.files_list; i < list.length; i++) {
         files_list.push({
             file_name: list[i].file_name,

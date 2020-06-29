@@ -9,7 +9,7 @@ import {Catalogue} from "../catalogue/catalogue";
 import {entryCatalogue} from "../utils/otherUtils";
 import {getFileSize} from "./create";
 import {discBlockSize, file_type} from "../index";
-import {decreaseDiskSpace} from "../utils/diskUtils";
+import {decreaseDiskSpace, increaseDiskSpace} from "../utils/diskUtils";
 import {FCB} from "../FCB/FCB";
 import {DiscBlock} from "../disc/discBlock";
 import {discMemory} from "../disc/disc";
@@ -36,10 +36,10 @@ export function updateFilesContent(
  */
 export function startUpdate(path: string, name: string, content) {
     const temp: Catalogue = entryCatalogue(path);
-
+    //新文本的空间
     let tempSize: number = 0;
-
-    let beforeSize: number = 0;
+    //旧的文本空间
+    let oldSize: number = 0;
 
     let needUpdateFCB: FCB;
 
@@ -49,14 +49,28 @@ export function startUpdate(path: string, name: string, content) {
             needUpdateFCB = list[i];
             //更新内容
             list[i].content = content;
+            oldSize = list[i].size
             list[i].size = tempSize = getFileSize(file_type.txt, content);
             break
         }
     }
 
-    //同时还要更新磁盘的空间
-    if (!decreaseDiskSpace(tempSize)) {
-        throw new Error('磁盘空间不足')
+    //新文本和老文本的差值,
+    let d_value = Math.abs(tempSize - oldSize);
+
+    //更新磁盘占用情况
+    //有两种情况，新的文本可能会更小，或者新的文本会更大，更小了则需要释放空间
+    if (tempSize >= oldSize) {
+        //同时还要更新磁盘的空间
+        if (!decreaseDiskSpace(d_value)) {
+            throw new Error('磁盘空间不足')
+        }
+        updateDiscSpace(d_value, oldSize, path, needUpdateFCB);
+    } else {
+        if (!increaseDiskSpace(d_value)) {
+            throw new Error('磁盘空间不足')
+        }
+        freeSpace(d_value, oldSize, path, needUpdateFCB)
     }
 
     //更新完这个TXT的大小内容，接下来就要更新它所在上一级目录的内存占用情况。更目录除外
@@ -66,32 +80,77 @@ export function startUpdate(path: string, name: string, content) {
 
         for (let i = 0, list = parent.files_list; i < list.length; i++) {
             if (list[i].file_name === folder_name) {
-                beforeSize = list[i].size
-                list[i].size += tempSize;
+                if (tempSize >= oldSize) {
+                    list[i].size += d_value;
+                } else {
+                    list[i].size -= d_value;
+                }
                 break
             }
         }
     }
 
-    //更新磁盘占用情况
-    updateDiscSpace(tempSize, beforeSize, path, needUpdateFCB);
+    console.log(needUpdateFCB)
 }
 
 /**
- * 更新磁盘外存放占用情况
+ * 空间释放
+ * @param d_value
+ * @param oldSize
+ * @param path
+ * @param needUpdateFCB
  */
-function updateDiscSpace(size: number, beforeSize: number, path: string, needUpdateFCB: FCB) {
-    const newSize = size + beforeSize;
+export function freeSpace(d_value: number, oldSize: number, path: string, needUpdateFCB: FCB) {
+    //最后一块盘区占用的空间
+    const lastDiscOccupySpace: number = oldSize - discBlockSize * (needUpdateFCB.occupy_number - 1)
 
+    //进入if说明盘块用压缩
+    if (d_value > lastDiscOccupySpace) {
+        //除了压缩原来最后那一块，需要压缩的空间
+        const rest: number = d_value - lastDiscOccupySpace
+        //压缩的盘曲
+        const shrink_number: number = Math.floor(rest / discBlockSize) + 1;//这个1代表原来最后的
+
+        let firstIndex: number = needUpdateFCB.physical_position;
+
+        let temp: DiscBlock = discMemory.getOneDiscBlocksInfo(firstIndex)
+
+        for (let i = 0; i < needUpdateFCB.occupy_number - shrink_number - 1; i++) {
+            firstIndex = temp.nextIndex
+            temp = discMemory.getOneDiscBlocksInfo(firstIndex)
+        }
+
+        let next: DiscBlock
+        //还原位置图
+        for (let i = 0; i <= shrink_number; i++) {
+            if (i !== 0) {
+                const columns_rows = views.transformRows(temp.index);
+                views.removeUsed(columns_rows.columns, columns_rows.rows)
+            }
+            if (i !== shrink_number) {
+                next = discMemory.getOneDiscBlocksInfo(temp.nextIndex);
+                //断开指针
+                temp.nextIndex = null;
+                temp = next
+            }
+        }
+        //最后还要对FCB占用的磁盘块数目进行更新
+        needUpdateFCB.occupy_number -= shrink_number
+    }
+}
+
+/**
+ * 更新磁盘外存放占用情况,占用外村增大了
+ */
+function updateDiscSpace(size: number, oldSize: number ,path: string, needUpdateFCB: FCB) {
     let lastDiscBlock: DiscBlock = findLastDiscBlock(needUpdateFCB);
 
     //文件所对应最后一块盘块的占用剩余空间
-    const restSize: number = discBlockSize * needUpdateFCB.occupy_number - size;
+    const restSize: number = discBlockSize * needUpdateFCB.occupy_number - oldSize;
 
     //新的空间在磁盘不够用，则需要新开辟一块空间
-    //todo 假如文件变小了 你还要释放空间
-    if (restSize < newSize) {
-        const need_number: number = Math.ceil((newSize - restSize) / discBlockSize);
+    if (restSize < size) {
+        const need_number: number = Math.ceil((size - restSize) / discBlockSize);
 
         for (let i = 0; i < need_number; i++) {
             let freePosition = views.getFirstFreesRegion();
@@ -105,7 +164,7 @@ function updateDiscSpace(size: number, beforeSize: number, path: string, needUpd
         }
 
         //最后还要对FCB占用的磁盘块数目进行更新
-        needUpdateFCB.occupy_number = need_number
+        needUpdateFCB.occupy_number += need_number
     }
 }
 
@@ -116,9 +175,6 @@ function updateDiscSpace(size: number, beforeSize: number, path: string, needUpd
 export function findLastDiscBlock(startFCB: FCB): DiscBlock {
     const index: number = startFCB.physical_position;
     const occupy_number: number = startFCB.occupy_number;
-
-    console.log('FCB',startFCB)
-    console.log('我进入了')
 
     //在磁盘中查询对应的盘块好码,这个是起始盘块的物理位置
     let target_blocks: DiscBlock = discMemory.getOneDiscBlocksInfo(index);
