@@ -4,7 +4,6 @@ const core_1 = require("../core");
 const create_1 = require("../core/operation/create");
 const resultBean_1 = require("../utils/resultBean");
 const positionViews_1 = require("../core/positionViews/positionViews");
-const userCatalogue_1 = require("../core/catalogue/userCatalogue");
 const otherUtils_1 = require("../core/utils/otherUtils");
 const update_1 = require("../core/operation/update");
 const delete_1 = require("../core/operation/delete");
@@ -28,8 +27,6 @@ class FilesService {
             recentWriterTime: null,
             recentReadTime: null,
         });
-        console.log(positionViews_1.views.getViews());
-        console.log(userCatalogue_1.UserRoot[0].files_list[0]);
         response.json(results.successBean('创建成功'));
     }
     /**
@@ -53,9 +50,10 @@ class FilesService {
         const name = request.body.file_name;
         const path = request.body.file_path;
         const beforeName = request.body.beforeName;
+        const type = request.body.file_type ? core_1.file_type.txt : core_1.file_type.folder;
         const Results = new resultBean_1.ResultBean();
         try {
-            update_1.updateFiles(name, beforeName, path);
+            update_1.updateFiles(name, beforeName, path, type);
             response.json(Results.successBean('修改文件成功'));
         }
         catch (e) {
@@ -68,9 +66,6 @@ class FilesService {
         const path = request.body.file_path;
         const type = request.body.type === 'txt' ? core_1.file_type.txt : core_1.file_type.folder;
         const result = new resultBean_1.ResultBean();
-        console.log(name);
-        console.log(path);
-        console.log(type);
         delete_1.deleteFiles(path, name, type);
         response.json(result.successBean('删除成功'));
     }
@@ -80,13 +75,22 @@ class FilesService {
         const content = request.body.content;
         const beforeContent = request.body.beforeContent;
         const result = new resultBean_1.ResultBean();
-        // try {
-        updateContent_1.updateFilesContent(name, path, content, beforeContent);
-        console.log(positionViews_1.views.getViews());
-        response.json(result.successBean('修改成功'));
-        // } catch (e) {
-        //     response.json(result.failBean(e.message))
-        // }
+        try {
+            updateContent_1.updateFilesContent(name, path, content, beforeContent);
+            console.log(positionViews_1.views.getViews());
+            response.json(result.successBean('修改成功'));
+        }
+        catch (e) {
+            response.json(result.failBean(e.message));
+        }
+    }
+    /**
+     * 进入下一级目录
+     * @param request
+     * @param response
+     */
+    static entryNextCatalogue(request, response) {
+        const path = request.body.path;
     }
 }
 exports.FilesService = FilesService;

@@ -30,9 +30,6 @@ export class FilesService {
             recentReadTime: null,
         });
 
-        console.log(views.getViews())
-        console.log(UserRoot[0].files_list[0])
-
         response.json(results.successBean('创建成功'))
     }
 
@@ -60,10 +57,11 @@ export class FilesService {
         const name = request.body.file_name;
         const path = request.body.file_path;
         const beforeName = request.body.beforeName ;
+        const type: file_type = request.body.file_type ? file_type.txt : file_type.folder;
         const Results: ResultBean = new ResultBean();
 
         try {
-            updateFiles(name, beforeName, path);
+            updateFiles(name, beforeName, path, type);
             response.json(Results.successBean('修改文件成功'))
         } catch(e) {
             console.log(e.message)
@@ -77,10 +75,6 @@ export class FilesService {
         const type: file_type = request.body.type === 'txt' ? file_type.txt : file_type.folder;
         const result: ResultBean = new ResultBean();
 
-        console.log(name)
-        console.log(path)
-        console.log(type)
-
         deleteFiles(path, name, type)
 
         response.json(result.successBean('删除成功'))
@@ -93,14 +87,22 @@ export class FilesService {
         const beforeContent = request.body.beforeContent;
         const result: ResultBean = new ResultBean();
 
-        // try {
+        try {
             updateFilesContent(name, path, content, beforeContent)
-
             console.log(views.getViews())
             response.json(result.successBean('修改成功'))
-        // } catch (e) {
-        //     response.json(result.failBean(e.message))
-        // }
+        } catch (e) {
+            response.json(result.failBean(e.message))
+        }
+    }
+
+    /**
+     * 进入下一级目录
+     * @param request
+     * @param response
+     */
+    public static entryNextCatalogue(request: any, response: any) {
+        const path: string = request.body.path
     }
 
 }

@@ -5,10 +5,10 @@ const index_1 = require("../index");
 const FCB_1 = require("../FCB/FCB");
 const diskUtils_1 = require("../utils/diskUtils");
 const viewsUtils_1 = require("../positionViews/viewsUtils");
-const userCatalogue_1 = require("../catalogue/userCatalogue");
 const catalogue_1 = require("../catalogue/catalogue");
 const catalogueUtil_1 = require("../catalogue/catalogueUtil");
 const verify_1 = require("../utils/verify");
+const otherUtils_1 = require("../utils/otherUtils");
 /**
  * 创建指令
  */
@@ -54,30 +54,24 @@ exports.create = function (file_name, config) {
  * 无论是什么文件类型都把FCB和目录都分别插入两个数组中，方便查询
  */
 function writeFCBInCatalogue(fcb, config, file_name, catalogue) {
-    //当前用户
-    const user = index_1.currentUser;
     //多少层的目录
     const layer = config.path.split('/');
-    //用户目录所在位置的下标
-    let index = null;
     let temp;
     let matchStr = '';
+    temp = otherUtils_1.getRootCatalogue();
     catalogueUtil_1.removeNone(layer);
-    for (let i = 0; i < userCatalogue_1.UserRoot.length; i++) {
-        if (userCatalogue_1.UserRoot[i].user === user) {
-            index = i;
-            break;
-        }
-    }
-    temp = userCatalogue_1.UserRoot[index];
-    //寻找创建文件的目录
-    for (let i = 0; i < layer.length - 1; i++) {
-        matchStr += '/' + layer[i];
-        for (let j = 0; j < temp.child.length; j++) {
-            //路径命中
-            if (matchStr === temp.child[j].path) {
-                temp = temp.child[j];
-                break;
+    if (config.path !== '/') {
+        //现在更目录匹配一波
+        //寻找创建文件的目录
+        for (let i = 0; i < layer.length; i++) {
+            matchStr += '/' + layer[i];
+            for (let j = 0; j < temp.child.length; j++) {
+                //路径命中
+                console.log(temp.child[j]);
+                if (matchStr === temp.child[j].path) {
+                    temp = temp.child[j];
+                    break;
+                }
             }
         }
     }

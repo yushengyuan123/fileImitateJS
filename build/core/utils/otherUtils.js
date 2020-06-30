@@ -23,14 +23,20 @@ function queryFiles(path) {
         }
     }
     temp = userCatalogue_1.UserRoot[index];
-    //寻找创建文件的目录
-    for (let i = 0; i < layer.length - 1; i++) {
-        matchStr += '/' + layer[i];
-        for (let j = 0; j < temp.child.length; j++) {
-            //路径命中
-            if (matchStr === temp.child[j].path) {
-                temp = temp.child[j];
-                break;
+    if (path !== '/') {
+        //现在更目录匹配一波
+        //寻找创建文件的目录
+        console.log(layer);
+        for (let i = 0; i < layer.length; i++) {
+            matchStr += '/' + layer[i];
+            console.log('匹配路径', matchStr);
+            for (let j = 0; j < temp.child.length; j++) {
+                //路径命中
+                console.log(temp.child[j]);
+                if (matchStr === temp.child[j].path) {
+                    temp = temp.child[j];
+                    break;
+                }
             }
         }
     }
@@ -61,7 +67,40 @@ function entryCatalogue(path) {
     //用户目录所在位置的下标
     let index = null;
     let temp;
+    let matchStr = '';
     catalogueUtil_1.removeNone(layer);
+    for (let i = 0; i < userCatalogue_1.UserRoot.length; i++) {
+        if (userCatalogue_1.UserRoot[i].user === user) {
+            index = i;
+            break;
+        }
+    }
+    temp = userCatalogue_1.UserRoot[index];
+    if (path !== '/') {
+        //寻找创建文件的目录
+        for (let i = 0; i < layer.length; i++) {
+            matchStr += '/' + layer[i];
+            for (let j = 0; j < temp.child.length; j++) {
+                //路径命中
+                if (matchStr === temp.child[j].path) {
+                    temp = temp.child[j];
+                    break;
+                }
+            }
+        }
+    }
+    return temp;
+}
+exports.entryCatalogue = entryCatalogue;
+/**
+ * 获取某个用户根目录
+ */
+function getRootCatalogue() {
+    //当前用户
+    const user = index_1.currentUser;
+    //用户目录所在位置的下标
+    let index = null;
+    let temp;
     for (let i = 0; i < userCatalogue_1.UserRoot.length; i++) {
         if (userCatalogue_1.UserRoot[i].user === user) {
             index = i;
@@ -71,4 +110,4 @@ function entryCatalogue(path) {
     temp = userCatalogue_1.UserRoot[index];
     return temp;
 }
-exports.entryCatalogue = entryCatalogue;
+exports.getRootCatalogue = getRootCatalogue;

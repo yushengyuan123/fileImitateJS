@@ -59,6 +59,11 @@ app.post('/files/*', (request: any, response: any) => {
             FilesService.updateContent(request, response);
             break
         }
+
+        case '/files/cd': {
+            FilesService.entryNextCatalogue(request, response);
+            break
+        }
     }
 })
 

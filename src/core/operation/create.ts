@@ -8,6 +8,7 @@ import {UserRoot} from "../catalogue/userCatalogue";
 import {Catalogue} from "../catalogue/catalogue";
 import {removeNone} from "../catalogue/catalogueUtil";
 import {Verify} from "../utils/verify";
+import {getRootCatalogue} from "../utils/otherUtils";
 
 /**
  * 创建指令
@@ -68,34 +69,27 @@ export let create = function (file_name: string, config: {
  * 无论是什么文件类型都把FCB和目录都分别插入两个数组中，方便查询
  */
 function writeFCBInCatalogue(fcb: FCB, config: config, file_name?: string, catalogue ?: Catalogue) {
-    //当前用户
-    const user: string = currentUser;
     //多少层的目录
     const layer: Array<any> = config.path.split('/');
-    //用户目录所在位置的下标
-    let index: number = null;
     let temp: Catalogue;
     let matchStr: string = '';
 
-    removeNone(layer);
+    temp = getRootCatalogue()
 
-    for (let i = 0; i < UserRoot.length; i++) {
-        if (UserRoot[i].user === user) {
-            index = i;
-            break
-        }
-    }
+    removeNone(layer)
 
-    temp = UserRoot[index];
-
-    //寻找创建文件的目录
-    for (let i = 0; i < layer.length - 1; i++) {
-        matchStr += '/' + layer[i]
-        for (let j = 0; j < temp.child.length; j++) {
-            //路径命中
-            if (matchStr === temp.child[j].path) {
-                temp = temp.child[j];
-                break
+    if (config.path !== '/') {
+        //现在更目录匹配一波
+        //寻找创建文件的目录
+        for (let i = 0; i < layer.length; i++) {
+            matchStr += '/' + layer[i];
+            for (let j = 0; j < temp.child.length; j++) {
+                //路径命中
+                console.log(temp.child[j])
+                if (matchStr === temp.child[j].path) {
+                    temp = temp.child[j];
+                    break
+                }
             }
         }
     }

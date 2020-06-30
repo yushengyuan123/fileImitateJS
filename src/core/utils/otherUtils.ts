@@ -28,14 +28,20 @@ export function queryFiles(path: string): queryFilesFormat {
 
     temp = UserRoot[index];
 
-    //寻找创建文件的目录
-    for (let i = 0; i < layer.length - 1; i++) {
-        matchStr += '/' + layer[i]
-        for (let j = 0; j < temp.child.length; j++) {
-            //路径命中
-            if (matchStr === temp.child[j].path) {
-                temp = temp.child[j];
-                break
+    if (path !== '/') {
+        //现在更目录匹配一波
+        //寻找创建文件的目录
+        console.log(layer)
+        for (let i = 0; i < layer.length; i++) {
+            matchStr += '/' + layer[i];
+            console.log('匹配路径', matchStr)
+            for (let j = 0; j < temp.child.length; j++) {
+                //路径命中
+                console.log(temp.child[j])
+                if (matchStr === temp.child[j].path) {
+                    temp = temp.child[j];
+                    break
+                }
             }
         }
     }
@@ -69,6 +75,7 @@ export function entryCatalogue(path: string): Catalogue {
     //用户目录所在位置的下标
     let index: number = null;
     let temp: Catalogue;
+    let matchStr: string = ''
 
     removeNone(layer);
 
@@ -81,6 +88,42 @@ export function entryCatalogue(path: string): Catalogue {
 
     temp = UserRoot[index];
 
+    if (path !== '/') {
+        //寻找创建文件的目录
+        for (let i = 0; i < layer.length; i++) {
+            matchStr += '/' + layer[i]
+            for (let j = 0; j < temp.child.length; j++) {
+                //路径命中
+                if (matchStr === temp.child[j].path) {
+                    temp = temp.child[j];
+                    break
+                }
+            }
+        }
+    }
+
     return temp;
+}
+
+/**
+ * 获取某个用户根目录
+ */
+export function getRootCatalogue(): Catalogue {
+    //当前用户
+    const user: string = currentUser;
+    //用户目录所在位置的下标
+    let index: number = null;
+    let temp: Catalogue;
+
+    for (let i = 0; i < UserRoot.length; i++) {
+        if (UserRoot[i].user === user) {
+            index = i;
+            break
+        }
+    }
+
+    temp = UserRoot[index];
+
+    return temp
 }
 

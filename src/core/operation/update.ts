@@ -1,8 +1,7 @@
-import {currentUser, file_type, operation_muster} from "../index";
+import {file_type} from "../index";
 import {Catalogue} from "../catalogue/catalogue";
-import {removeNone} from "../catalogue/catalogueUtil";
-import {UserRoot} from "../catalogue/userCatalogue";
 import {Verify} from "../utils/verify";
+import {entryCatalogue} from "../utils/otherUtils";
 
 /**
  * 更新文件操作
@@ -13,6 +12,7 @@ export function updateFiles(
     name: string,
     beforeName: string,
     path: string,
+    type: file_type
 ): void {
     //新名字和旧的名字一样就不用检验了
     if (beforeName === name) {
@@ -22,7 +22,7 @@ export function updateFiles(
     //todo 假如文件中有/，我肯定出bug
     Verify.pathIsTheSame(path, name);
 
-    updateFolder(name, beforeName, path);
+    updateFolder(name, beforeName, path, type);
 }
 
 /**
@@ -31,58 +31,60 @@ export function updateFiles(
  * @param name
  * @param path
  * @param beforeName
+ * @param type
  */
 export function updateFolder(
     name: string,
     beforeName: string,
     path: string,
+    type: file_type
 ): void {
-    //当前用户
-    const user: string = currentUser;
-    //多少层的目录
-    const layer: Array<any> = path.split('/');
-    //用户目录所在位置的下标
-    let index: number = null;
-    let temp: Catalogue;
-    let matchStr: string = '';
+    const temp: Catalogue = entryCatalogue(path);
 
-    removeNone(layer);
-
-    for (let i = 0; i < UserRoot.length; i++) {
-        if (UserRoot[i].user === user) {
-            index = i;
-            break
-        }
-    }
-
-    temp = UserRoot[index];
-
-    //寻找创建文件的目录
-    for (let i = 0; i < layer.length - 1; i++) {
-        matchStr += '/' + layer[i]
-        for (let j = 0; j < temp.child.length; j++) {
-            //路径命中
-            if (matchStr === temp.child[j].path) {
-                temp = temp.child[j];
-                break
-            }
-        }
-    }
-
+    //更新名字
     for (let i = 0, list = temp.files_list; i < list.length; i++) {
         if (list[i].file_name === beforeName) {
             //更新名字
-            list[i].file_name = name
+            list[i].file_name = name;
             break
         }
     }
 
-    //更新路径
-    for (let i = 0, list = temp.child; i < list.length; i++) {
-        if (list[i].path === path) {
-            //提取字符,如/hi,则结果为:/，假如/hi/nihao,则结果为/hi/
-            list[i].path = path.substring(0, path.lastIndexOf('/') + 1) + name;
-            break
+
+    //假如是文件夹则需要更新路径，否则不需要
+    //而且这个路径更改整一个在目录下的文件路径全部都要改
+    if (type === file_type.folder) {
+        //记录下修改的目录结构
+        let cache: Catalogue;
+        let needModifyIndex: number;
+        let newPath: string
+        //更改了当前目录的
+        for (let i = 0, list = temp.child; i < list.length; i++) {
+            const old_name: string = list[i].path.substring(list[i].path.lastIndexOf('/') + 1);
+            if (beforeName === old_name) {
+                cache = list[i]
+                needModifyIndex = cache.path.length
+                list[i].path = newPath = list[i].path.substring(0, list[i].path.lastIndexOf('/') + 1) + name;
+                break
+            }
+        }
+
+        recursiveQuery(cache, needModifyIndex, newPath)
+    }
+}
+
+/**
+ * 文件递归查询修改
+ */
+export function recursiveQuery(target_catalogue: Catalogue, needModifyIndex: number, newPath: string) {
+    const child: Array<Catalogue> = target_catalogue.child
+    if (child.length === 0) {
+        return
+    } else {
+        for (let i = 0; i < child.length; i++) {
+            recursiveQuery(child[i], needModifyIndex, newPath);
+            const pathStr: string = child[i].path
+            child[i].path = newPath + pathStr.substring(needModifyIndex);
         }
     }
 }

@@ -75,18 +75,22 @@ export function startUpdate(path: string, name: string, content) {
 
     //更新完这个TXT的大小内容，接下来就要更新它所在上一级目录的内存占用情况。更目录除外
     if (path != '/') {
-        const folder_name: string = temp.path.substring(path.lastIndexOf('/') + 1)
-        const parent = temp.parent;
-
-        for (let i = 0, list = parent.files_list; i < list.length; i++) {
-            if (list[i].file_name === folder_name) {
-                if (tempSize >= oldSize) {
-                    list[i].size += d_value;
-                } else {
-                    list[i].size -= d_value;
+        let folder_name: string = temp.path.substring(path.lastIndexOf('/') + 1);
+        let parent = temp.parent;
+        //逐步更新文件目录的大小，一直更新到更目录
+        while (parent !== null) {
+            for (let i = 0, list = parent.files_list; i < list.length; i++) {
+                if (list[i].file_name === folder_name) {
+                    if (tempSize >= oldSize) {
+                        list[i].size += d_value;
+                    } else {
+                        list[i].size -= d_value;
+                    }
+                    folder_name = list[i].file_name
+                    break
                 }
-                break
             }
+            parent = parent.parent
         }
     }
 
@@ -142,7 +146,7 @@ export function freeSpace(d_value: number, oldSize: number, path: string, needUp
 /**
  * 更新磁盘外存放占用情况,占用外村增大了
  */
-function updateDiscSpace(size: number, oldSize: number ,path: string, needUpdateFCB: FCB) {
+function updateDiscSpace(size: number, oldSize: number, path: string, needUpdateFCB: FCB) {
     let lastDiscBlock: DiscBlock = findLastDiscBlock(needUpdateFCB);
 
     //文件所对应最后一块盘块的占用剩余空间

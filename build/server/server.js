@@ -50,6 +50,10 @@ app.post('/files/*', (request, response) => {
             filesService_1.FilesService.updateContent(request, response);
             break;
         }
+        case '/files/cd': {
+            filesService_1.FilesService.entryNextCatalogue(request, response);
+            break;
+        }
     }
 });
 app.listen(8085, function openServer() {
