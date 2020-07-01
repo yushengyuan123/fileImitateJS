@@ -1,5 +1,5 @@
 import {Catalogue} from "../catalogue/catalogue";
-import {entryCatalogue} from "../utils/otherUtils";
+import {entryCatalogue, getCatalogueFCB} from "../utils/otherUtils";
 import {FCB} from "../FCB/FCB";
 import {discMemory} from "../disc/disc";
 import {DiscBlock} from "../disc/discBlock";
@@ -7,6 +7,7 @@ import {views} from "../positionViews/positionViews";
 import {position} from "./interface";
 import {file_type} from "../index";
 import {UserRoot} from "../catalogue/userCatalogue";
+
 /**
  * 删除文件操作
  * 删除操作要从位示图移除，从磁盘分区移除, 还要把disc的磁盘分区指针指null
@@ -14,21 +15,32 @@ import {UserRoot} from "../catalogue/userCatalogue";
  * @param name
  * @param type
  */
+//todo 文件夹删除有待测试
 export function deleteFiles(path: string, name: string, type: file_type) {
     const deleteCatalogue: Catalogue = entryCatalogue(path);
     let deleteFCB: FCB;
+    let deleteSize: number
+    let cacheCatalogue: Catalogue
 
-    //todo 还没有还原磁盘空间
     //这里还要注意假如删除的是文件夹，那么还要移除catalogue数组，如果只是txt则不需要
     for (let i = 0, list = deleteCatalogue.files_list; i < list.length; i++) {
         if (name === list[i].file_name) {
+            deleteSize = list[i].size
             deleteFCB = list[i];
             break
         }
     }
 
-    //将位示图置为0， 顺便把next指针置为null
-    removeFromViews(deleteFCB);
+    //删除文件夹，和删除txt文件处理是不一样的
+    if (type === file_type.txt) {
+        //断开磁盘的nextIndex指针
+        removeFromDisc(deleteFCB)
+        //将位示图置为0， 顺便把next指针置为null
+        removeFromViews(deleteFCB);
+    }
+
+    //向上减少文件夹的大小
+    decreaseUpCatalogue(deleteCatalogue, deleteSize)
 
     //从FCB移除
     let index: number = deleteCatalogue.files_list.indexOf(deleteFCB);
@@ -46,6 +58,7 @@ export function deleteFiles(path: string, name: string, type: file_type) {
         }
         for (let i = 0, list = deleteCatalogue.child; i < list.length; i++) {
             if (list[i].path === concatPath) {
+                cacheCatalogue = list[i]
                 let index: number = list.indexOf(list[i]);
                 if (index > -1) {
                     list.splice(index, 1);
@@ -53,11 +66,81 @@ export function deleteFiles(path: string, name: string, type: file_type) {
                 break
             }
         }
+
+        removeViewsAsFolder(cacheCatalogue)
     }
 
     console.log(views.getViews())
     console.log(UserRoot)
+}
 
+/**
+ * 断开磁盘下和该文件相关的nextIndex指针
+ * 删除txt则直接寻找就好了，但是假如删除的是folder你要逐级向下寻找所有的txt
+ */
+export function removeFromDisc(needUpdateFCB: FCB) {
+    //获得删除FCB第一块磁盘的物理地址
+    let firstIndex: number = needUpdateFCB.physical_position;
+    //获得该盘曲
+    let firstDisc: DiscBlock = discMemory.getOneDiscBlocksInfo(firstIndex)
+
+    let temp: DiscBlock;
+
+    for (let i = 0; i < needUpdateFCB.occupy_number - 1; i++) {
+        temp = discMemory.getOneDiscBlocksInfo(firstDisc.nextIndex)
+        if (!firstDisc.nextIndex) {
+            firstDisc.nextIndex = null
+        } else {
+            throw new Error('移除指针发生异常，指针原来就是空的')
+        }
+        firstDisc = temp
+    }
+}
+
+/**
+ * 删除文件夹子后，对应文件夹下所有的txt都要从磁盘移除
+ */
+export function removeViewsAsFolder(deleteCatalogue: Catalogue) {
+    if (deleteCatalogue.child.length !== 0) {
+        for (let i = 0, list = deleteCatalogue.child; i < list.length; i++) {
+            removeViewsAsFolder(list[i])
+        }
+    }
+
+    const files: Array<FCB> = deleteCatalogue.files_list
+
+    if (files.length !== 0) {
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].type === file_type.txt) {
+                removeFromViews(files[i])
+                removeFromDisc(files[i])
+            }
+        }
+    }
+}
+
+/**
+ * 改变上级目录所有的内存占用
+ */
+export function decreaseUpCatalogue(deleteCatalogue: Catalogue, size: number) {
+    //如果修改的已经是根目录那就不用向上递归修改了
+    if (deleteCatalogue.parent === null) {
+        return
+    }
+    recursiveDelete(size, deleteCatalogue)
+}
+
+/**
+ * 递归减少folder文件的大小
+ */
+export function recursiveDelete(decreaseSize: number, catalogue: Catalogue) {
+    if (catalogue === null) {
+        return
+    } else {
+        recursiveDelete(decreaseSize, catalogue.parent)
+        const fcb = getCatalogueFCB(catalogue)
+        fcb.size -= decreaseSize
+    }
 }
 
 /**

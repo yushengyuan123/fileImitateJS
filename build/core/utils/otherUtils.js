@@ -111,3 +111,16 @@ function getRootCatalogue() {
     return temp;
 }
 exports.getRootCatalogue = getRootCatalogue;
+/**
+ * 获得本目录对应的目录FCB
+ */
+function getCatalogueFCB(catalogue) {
+    const name = catalogue.path.substring(catalogue.path.lastIndexOf('/') + 1);
+    for (let i = 0, list = catalogue.files_list; i < list.length; i++) {
+        if (name === list[i].file_name) {
+            return list[i];
+        }
+    }
+    throw new Error('发生错误文件FCB和目录名称不匹配');
+}
+exports.getCatalogueFCB = getCatalogueFCB;
