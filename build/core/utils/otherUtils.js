@@ -16,6 +16,8 @@ function queryFiles(path) {
     let temp;
     let matchStr = '';
     catalogueUtil_1.removeNone(layer);
+    console.log(userCatalogue_1.UserRoot);
+    console.log('当前用户', user);
     for (let i = 0; i < userCatalogue_1.UserRoot.length; i++) {
         if (userCatalogue_1.UserRoot[i].user === user) {
             index = i;
@@ -23,6 +25,8 @@ function queryFiles(path) {
         }
     }
     temp = userCatalogue_1.UserRoot[index];
+    console.log('当前目录', temp);
+    console.log('当前用户', user);
     if (path !== '/') {
         //现在更目录匹配一波
         //寻找创建文件的目录
@@ -114,8 +118,10 @@ exports.getRootCatalogue = getRootCatalogue;
 /**
  * 获得本目录对应的目录FCB
  */
-function getCatalogueFCB(catalogue) {
-    const name = catalogue.path.substring(catalogue.path.lastIndexOf('/') + 1);
+function getCatalogueFCB(catalogue, name) {
+    // const name = catalogue.path.substring(catalogue.path.lastIndexOf('/') + 1)
+    console.log('目录', catalogue);
+    console.log('修改文件目录名称', name);
     for (let i = 0, list = catalogue.files_list; i < list.length; i++) {
         if (name === list[i].file_name) {
             return list[i];

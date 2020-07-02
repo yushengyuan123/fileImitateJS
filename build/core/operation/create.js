@@ -67,7 +67,6 @@ function writeFCBInCatalogue(fcb, config, file_name, catalogue) {
             matchStr += '/' + layer[i];
             for (let j = 0; j < temp.child.length; j++) {
                 //路径命中
-                console.log(temp.child[j]);
                 if (matchStr === temp.child[j].path) {
                     temp = temp.child[j];
                     break;

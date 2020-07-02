@@ -86,7 +86,7 @@ export function startUpdate(path: string, name: string, content) {
                     } else {
                         list[i].size -= d_value;
                     }
-                    folder_name = list[i].file_name
+                    folder_name = parent.path.substring(parent.path.lastIndexOf('/') + 1);
                     break
                 }
             }
@@ -94,7 +94,6 @@ export function startUpdate(path: string, name: string, content) {
         }
     }
 
-    console.log(needUpdateFCB)
 }
 
 /**
@@ -184,13 +183,11 @@ export function findLastDiscBlock(startFCB: FCB): DiscBlock {
     let target_blocks: DiscBlock = discMemory.getOneDiscBlocksInfo(index);
 
     if (occupy_number === 1) {
-        console.log(index)
         return discMemory.getOneDiscBlocksInfo(index);
     } else {
         let temp: number;
         for (let i = 0; i < occupy_number - 1; i++) {
             temp = target_blocks.nextIndex;
-            console.log(temp)
         }
         return discMemory.getOneDiscBlocksInfo(temp);
     }

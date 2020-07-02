@@ -1,8 +1,7 @@
 /**
  * 当前使用的用户的username
  */
-//todo 记得以后删了
-export let currentUser: string = '15521064831';
+export let currentUser: string = '';
 
 /**
  * 用户当前目录

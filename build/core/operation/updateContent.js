@@ -70,14 +70,13 @@ function startUpdate(path, name, content) {
                     else {
                         list[i].size -= d_value;
                     }
-                    folder_name = list[i].file_name;
+                    folder_name = parent.path.substring(parent.path.lastIndexOf('/') + 1);
                     break;
                 }
             }
             parent = parent.parent;
         }
     }
-    console.log(needUpdateFCB);
 }
 exports.startUpdate = startUpdate;
 /**
@@ -156,14 +155,12 @@ function findLastDiscBlock(startFCB) {
     //在磁盘中查询对应的盘块好码,这个是起始盘块的物理位置
     let target_blocks = disc_1.discMemory.getOneDiscBlocksInfo(index);
     if (occupy_number === 1) {
-        console.log(index);
         return disc_1.discMemory.getOneDiscBlocksInfo(index);
     }
     else {
         let temp;
         for (let i = 0; i < occupy_number - 1; i++) {
             temp = target_blocks.nextIndex;
-            console.log(temp);
         }
         return disc_1.discMemory.getOneDiscBlocksInfo(temp);
     }

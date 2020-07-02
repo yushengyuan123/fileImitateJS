@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("../core");
 const create_1 = require("../core/operation/create");
 const resultBean_1 = require("../utils/resultBean");
-const positionViews_1 = require("../core/positionViews/positionViews");
 const otherUtils_1 = require("../core/utils/otherUtils");
 const update_1 = require("../core/operation/update");
 const delete_1 = require("../core/operation/delete");
@@ -57,14 +56,13 @@ class FilesService {
             response.json(Results.successBean('修改文件成功'));
         }
         catch (e) {
-            console.log(e.message);
             response.json(Results.failBean(e.message));
         }
     }
     static deleteFiles(request, response) {
         const name = request.body.file_name;
         const path = request.body.file_path;
-        const type = request.body.type === 'txt' ? core_1.file_type.txt : core_1.file_type.folder;
+        const type = request.body.type ? core_1.file_type.txt : core_1.file_type.folder;
         const result = new resultBean_1.ResultBean();
         delete_1.deleteFiles(path, name, type);
         response.json(result.successBean('删除成功'));
@@ -77,7 +75,6 @@ class FilesService {
         const result = new resultBean_1.ResultBean();
         try {
             updateContent_1.updateFilesContent(name, path, content, beforeContent);
-            console.log(positionViews_1.views.getViews());
             response.json(result.successBean('修改成功'));
         }
         catch (e) {

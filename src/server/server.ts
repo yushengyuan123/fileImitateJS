@@ -4,15 +4,16 @@ import {User} from "./user";
 import {initUserRoot} from "../core/catalogue/userCatalogue";
 import {FilesService} from "../service/filesService";
 import {InitService} from "../service/initService";
+import {ResultBean} from "../utils/resultBean";
 
 let app: any = express();
 
 app.use(bodyParser.json());
 
 //打开页面加载用户数据
-app.get('/init', (request: any, response: any): void => {
-    InitService.initData(request, response);
-})
+// app.post('/init', (request: any, response: any) => {
+//     InitService.initData(request, response);
+// })
 
 app.post('/user/*', (request: any, response: any) => {
     const path = request.path;
@@ -71,4 +72,6 @@ app.post('/files/*', (request: any, response: any) => {
 app.listen(8085, function openServer(){
     console.log('express running on http://localhost:8085');
 })
+
+
 

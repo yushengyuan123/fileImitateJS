@@ -5,7 +5,7 @@ import {discMemory} from "../disc/disc";
 import {DiscBlock} from "../disc/discBlock";
 import {views} from "../positionViews/positionViews";
 import {position} from "./interface";
-import {file_type} from "../index";
+import {discSize, file_type} from "../index";
 import {UserRoot} from "../catalogue/userCatalogue";
 
 /**
@@ -15,12 +15,25 @@ import {UserRoot} from "../catalogue/userCatalogue";
  * @param name
  * @param type
  */
-//todo 文件夹删除有待测试
+
 export function deleteFiles(path: string, name: string, type: file_type) {
     const deleteCatalogue: Catalogue = entryCatalogue(path);
     let deleteFCB: FCB;
     let deleteSize: number
-    let cacheCatalogue: Catalogue
+    let cacheCatalogue: Catalogue;
+
+    //进入到需要删除的目录
+    for(let i = 0, list = deleteCatalogue.child; i < list.length; i++) {
+        let newPath
+        if (path === '/') {
+            newPath = path + name
+        } else {
+            newPath = path + '/' + name
+        }
+        if (list[i].path === newPath) {
+            cacheCatalogue = list[i]
+        }
+    }
 
     //这里还要注意假如删除的是文件夹，那么还要移除catalogue数组，如果只是txt则不需要
     for (let i = 0, list = deleteCatalogue.files_list; i < list.length; i++) {
@@ -41,6 +54,9 @@ export function deleteFiles(path: string, name: string, type: file_type) {
 
     //向上减少文件夹的大小
     decreaseUpCatalogue(deleteCatalogue, deleteSize)
+
+    //释放磁盘空间的大小
+    freeDiscSpace(deleteSize)
 
     //从FCB移除
     let index: number = deleteCatalogue.files_list.indexOf(deleteFCB);
@@ -70,8 +86,18 @@ export function deleteFiles(path: string, name: string, type: file_type) {
         removeViewsAsFolder(cacheCatalogue)
     }
 
-    console.log(views.getViews())
-    console.log(UserRoot)
+}
+
+/**
+ * 删除完文件后释放磁盘空间的大小
+ */
+function freeDiscSpace(deleteSize: number) {
+    if (discSize >= deleteSize) {
+        // @ts-ignore
+        discSize -= deleteSize
+    } else {
+        throw new Error('删除空间大于磁盘空间， 磁盘大小分配错误')
+    }
 }
 
 /**
@@ -127,18 +153,28 @@ export function decreaseUpCatalogue(deleteCatalogue: Catalogue, size: number) {
     if (deleteCatalogue.parent === null) {
         return
     }
-    recursiveDelete(size, deleteCatalogue)
+    //获取上一级目录的名称
+    let name = deleteCatalogue.path.substring(deleteCatalogue.path.lastIndexOf('/') + 1)
+    if (name === '') {
+        name = '/'
+    }
+    recursiveDelete(size, deleteCatalogue.parent, name)
 }
 
 /**
  * 递归减少folder文件的大小
  */
-export function recursiveDelete(decreaseSize: number, catalogue: Catalogue) {
+export function recursiveDelete(decreaseSize: number, catalogue: Catalogue, name: string) {
     if (catalogue === null) {
         return
     } else {
-        recursiveDelete(decreaseSize, catalogue.parent)
-        const fcb = getCatalogueFCB(catalogue)
+        //获取上一级目录的名称
+        let child_name = catalogue.path.substring(catalogue.path.lastIndexOf('/') + 1)
+        if (child_name === '') {
+            child_name = '/'
+        }
+        recursiveDelete(decreaseSize, catalogue.parent, child_name)
+        const fcb = getCatalogueFCB(catalogue, name)
         fcb.size -= decreaseSize
     }
 }
@@ -168,7 +204,6 @@ export function removeFromViews(deleteFCB: FCB) {
 
     collectIndex.forEach((value) => {
         const columns_rows: position = views.transformRows(value);
-        console.log(columns_rows)
         if (!views.removeUsed(columns_rows.columns, columns_rows.rows)) {
             throw new Error('出现异常，有空间已经被占用')
         }

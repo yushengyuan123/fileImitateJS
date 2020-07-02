@@ -64,7 +64,6 @@ export class FilesService {
             updateFiles(name, beforeName, path, type);
             response.json(Results.successBean('修改文件成功'))
         } catch(e) {
-            console.log(e.message)
             response.json(Results.failBean(e.message));
         }
     }
@@ -72,7 +71,7 @@ export class FilesService {
     public static deleteFiles(request: any, response: any): void {
         const name = request.body.file_name;
         const path = request.body.file_path;
-        const type: file_type = request.body.type === 'txt' ? file_type.txt : file_type.folder;
+        const type: file_type = request.body.type ? file_type.txt : file_type.folder;
         const result: ResultBean = new ResultBean();
 
         deleteFiles(path, name, type)
@@ -89,7 +88,6 @@ export class FilesService {
 
         try {
             updateFilesContent(name, path, content, beforeContent)
-            console.log(views.getViews())
             response.json(result.successBean('修改成功'))
         } catch (e) {
             response.json(result.failBean(e.message))

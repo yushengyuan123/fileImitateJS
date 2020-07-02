@@ -20,7 +20,9 @@ export class loginService {
                         currentUser = username
                         if (cb) {
                             try {
-                                cb(resultBean.successBean('登陆成功'))
+                                cb(resultBean.successBean('登陆成功', {
+                                    username: currentUser
+                                }))
                             } catch (e) {
                                 console.log(e)
                             }

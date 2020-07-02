@@ -20,6 +20,9 @@ export function queryFiles(path: string): queryFilesFormat {
 
     removeNone(layer);
 
+    console.log(UserRoot)
+    console.log('当前用户', user)
+
     for (let i = 0; i < UserRoot.length; i++) {
         if (UserRoot[i].user === user) {
             index = i;
@@ -28,6 +31,9 @@ export function queryFiles(path: string): queryFilesFormat {
     }
 
     temp = UserRoot[index];
+
+    console.log('当前目录', temp)
+    console.log('当前用户', user)
 
     if (path !== '/') {
         //现在更目录匹配一波
@@ -131,8 +137,10 @@ export function getRootCatalogue(): Catalogue {
 /**
  * 获得本目录对应的目录FCB
  */
-export function getCatalogueFCB(catalogue: Catalogue): FCB {
-    const name = catalogue.path.substring(catalogue.path.lastIndexOf('/') + 1)
+export function getCatalogueFCB(catalogue: Catalogue, name: string): FCB {
+    // const name = catalogue.path.substring(catalogue.path.lastIndexOf('/') + 1)
+    console.log('目录', catalogue)
+    console.log('修改文件目录名称', name)
     for (let i = 0, list =  catalogue.files_list; i < list.length; i++) {
         if (name === list[i].file_name) {
             return list[i]

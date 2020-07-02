@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 当前使用的用户的username
  */
-//todo 记得以后删了
-exports.currentUser = '15521064831';
+exports.currentUser = '';
 /**
  * 用户当前目录
  */

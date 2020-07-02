@@ -1,5 +1,6 @@
 import {loginService} from "../service/loginService";
 import {ResultBean} from "../utils/resultBean";
+import {currentUser} from "../core";
 
 /**
  * 用户登陆注册，模块

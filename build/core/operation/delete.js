@@ -4,7 +4,6 @@ const otherUtils_1 = require("../utils/otherUtils");
 const disc_1 = require("../disc/disc");
 const positionViews_1 = require("../positionViews/positionViews");
 const index_1 = require("../index");
-const userCatalogue_1 = require("../catalogue/userCatalogue");
 /**
  * 删除文件操作
  * 删除操作要从位示图移除，从磁盘分区移除, 还要把disc的磁盘分区指针指null
@@ -12,12 +11,24 @@ const userCatalogue_1 = require("../catalogue/userCatalogue");
  * @param name
  * @param type
  */
-//todo 文件夹删除有待测试
 function deleteFiles(path, name, type) {
     const deleteCatalogue = otherUtils_1.entryCatalogue(path);
     let deleteFCB;
     let deleteSize;
     let cacheCatalogue;
+    //进入到需要删除的目录
+    for (let i = 0, list = deleteCatalogue.child; i < list.length; i++) {
+        let newPath;
+        if (path === '/') {
+            newPath = path + name;
+        }
+        else {
+            newPath = path + '/' + name;
+        }
+        if (list[i].path === newPath) {
+            cacheCatalogue = list[i];
+        }
+    }
     //这里还要注意假如删除的是文件夹，那么还要移除catalogue数组，如果只是txt则不需要
     for (let i = 0, list = deleteCatalogue.files_list; i < list.length; i++) {
         if (name === list[i].file_name) {
@@ -35,6 +46,8 @@ function deleteFiles(path, name, type) {
     }
     //向上减少文件夹的大小
     decreaseUpCatalogue(deleteCatalogue, deleteSize);
+    //释放磁盘空间的大小
+    freeDiscSpace(deleteSize);
     //从FCB移除
     let index = deleteCatalogue.files_list.indexOf(deleteFCB);
     if (index > -1) {
@@ -61,10 +74,20 @@ function deleteFiles(path, name, type) {
         }
         removeViewsAsFolder(cacheCatalogue);
     }
-    console.log(positionViews_1.views.getViews());
-    console.log(userCatalogue_1.UserRoot);
 }
 exports.deleteFiles = deleteFiles;
+/**
+ * 删除完文件后释放磁盘空间的大小
+ */
+function freeDiscSpace(deleteSize) {
+    if (index_1.discSize >= deleteSize) {
+        // @ts-ignore
+        index_1.discSize -= deleteSize;
+    }
+    else {
+        throw new Error('删除空间大于磁盘空间， 磁盘大小分配错误');
+    }
+}
 /**
  * 断开磁盘下和该文件相关的nextIndex指针
  * 删除txt则直接寻找就好了，但是假如删除的是folder你要逐级向下寻找所有的txt
@@ -115,19 +138,29 @@ function decreaseUpCatalogue(deleteCatalogue, size) {
     if (deleteCatalogue.parent === null) {
         return;
     }
-    recursiveDelete(size, deleteCatalogue);
+    //获取上一级目录的名称
+    let name = deleteCatalogue.path.substring(deleteCatalogue.path.lastIndexOf('/') + 1);
+    if (name === '') {
+        name = '/';
+    }
+    recursiveDelete(size, deleteCatalogue.parent, name);
 }
 exports.decreaseUpCatalogue = decreaseUpCatalogue;
 /**
  * 递归减少folder文件的大小
  */
-function recursiveDelete(decreaseSize, catalogue) {
+function recursiveDelete(decreaseSize, catalogue, name) {
     if (catalogue === null) {
         return;
     }
     else {
-        recursiveDelete(decreaseSize, catalogue.parent);
-        const fcb = otherUtils_1.getCatalogueFCB(catalogue);
+        //获取上一级目录的名称
+        let child_name = catalogue.path.substring(catalogue.path.lastIndexOf('/') + 1);
+        if (child_name === '') {
+            child_name = '/';
+        }
+        recursiveDelete(decreaseSize, catalogue.parent, child_name);
+        const fcb = otherUtils_1.getCatalogueFCB(catalogue, name);
         fcb.size -= decreaseSize;
     }
 }
@@ -153,7 +186,6 @@ function removeFromViews(deleteFCB) {
     }
     collectIndex.forEach((value) => {
         const columns_rows = positionViews_1.views.transformRows(value);
-        console.log(columns_rows);
         if (!positionViews_1.views.removeUsed(columns_rows.columns, columns_rows.rows)) {
             throw new Error('出现异常，有空间已经被占用');
         }

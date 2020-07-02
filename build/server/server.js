@@ -4,13 +4,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const user_1 = require("./user");
 const filesService_1 = require("../service/filesService");
-const initService_1 = require("../service/initService");
 let app = express();
 app.use(bodyParser.json());
 //打开页面加载用户数据
-app.get('/init', (request, response) => {
-    initService_1.InitService.initData(request, response);
-});
+// app.post('/init', (request: any, response: any) => {
+//     InitService.initData(request, response);
+// })
 app.post('/user/*', (request, response) => {
     const path = request.path;
     /*路由分发接口*/

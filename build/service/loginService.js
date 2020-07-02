@@ -17,7 +17,9 @@ class loginService {
                     core_1.currentUser = username;
                     if (cb) {
                         try {
-                            cb(resultBean.successBean('登陆成功'));
+                            cb(resultBean.successBean('登陆成功', {
+                                username: core_1.currentUser
+                            }));
                         }
                         catch (e) {
                             console.log(e);
