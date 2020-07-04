@@ -5,6 +5,8 @@ import {initUserRoot} from "../core/catalogue/userCatalogue";
 import {FilesService} from "../service/filesService";
 import {InitService} from "../service/initService";
 import {ResultBean} from "../utils/resultBean";
+import {discSize} from "../core";
+import {Disc} from "../service/disc";
 
 let app: any = express();
 
@@ -31,6 +33,23 @@ app.post('/user/*', (request: any, response: any) => {
         }
     }
 });
+
+app.post('/disc/*', (request: any, response: any) => {
+    const path = request.path;
+
+    /*路由分发接口*/
+    switch (path) {
+        case '/disc/space': {
+            Disc.discSpaceService(request, response)
+            break
+        }
+
+        case '/disc/views': {
+            Disc.getViews(request, response)
+            break
+        }
+    }
+})
 
 app.post('/files/*', (request: any, response: any) => {
     const path: string = request.path;

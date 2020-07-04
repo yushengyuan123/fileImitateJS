@@ -53,5 +53,11 @@ class FCB {
     set type(value) {
         this._type = value;
     }
+    get createTime() {
+        return this._createTime;
+    }
+    set createTime(value) {
+        this._createTime = value;
+    }
 }
 exports.FCB = FCB;

@@ -20,12 +20,14 @@ export class FilesService {
         const path: string = request.body.path;
         const type: file_type = request.body.type === 'txt' ? file_type.txt : file_type.folder;
         const content: string = request.body.content;
+        const time: string = request.body.time
         const results: ResultBean = new ResultBean();
 
         create(file_name, {
             path: path,
             content: content,
             fileType: type,
+            createTime: time,
             recentWriterTime: null,
             recentReadTime: null,
         });
@@ -56,14 +58,15 @@ export class FilesService {
     public static updateFiles(request: any, response: any): void {
         const name = request.body.file_name;
         const path = request.body.file_path;
-        const beforeName = request.body.beforeName ;
+        const beforeName = request.body.beforeName;
         const type: file_type = request.body.file_type ? file_type.txt : file_type.folder;
+        const time: string = request.body.editTime;
         const Results: ResultBean = new ResultBean();
 
         try {
-            updateFiles(name, beforeName, path, type);
+            updateFiles(name, beforeName, path, time, type);
             response.json(Results.successBean('修改文件成功'))
-        } catch(e) {
+        } catch (e) {
             response.json(Results.failBean(e.message));
         }
     }
@@ -84,10 +87,11 @@ export class FilesService {
         const path = request.body.file_path;
         const content = request.body.content;
         const beforeContent = request.body.beforeContent;
+        const time = request.body.editTime
         const result: ResultBean = new ResultBean();
 
         try {
-            updateFilesContent(name, path, content, beforeContent)
+            updateFilesContent(name, path, content, time, beforeContent)
             response.json(result.successBean('修改成功'))
         } catch (e) {
             response.json(result.failBean(e.message))

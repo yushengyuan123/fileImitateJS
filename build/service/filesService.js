@@ -18,11 +18,13 @@ class FilesService {
         const path = request.body.path;
         const type = request.body.type === 'txt' ? core_1.file_type.txt : core_1.file_type.folder;
         const content = request.body.content;
+        const time = request.body.time;
         const results = new resultBean_1.ResultBean();
         create_1.create(file_name, {
             path: path,
             content: content,
             fileType: type,
+            createTime: time,
             recentWriterTime: null,
             recentReadTime: null,
         });
@@ -50,9 +52,10 @@ class FilesService {
         const path = request.body.file_path;
         const beforeName = request.body.beforeName;
         const type = request.body.file_type ? core_1.file_type.txt : core_1.file_type.folder;
+        const time = request.body.editTime;
         const Results = new resultBean_1.ResultBean();
         try {
-            update_1.updateFiles(name, beforeName, path, type);
+            update_1.updateFiles(name, beforeName, path, time, type);
             response.json(Results.successBean('修改文件成功'));
         }
         catch (e) {
@@ -72,9 +75,10 @@ class FilesService {
         const path = request.body.file_path;
         const content = request.body.content;
         const beforeContent = request.body.beforeContent;
+        const time = request.body.editTime;
         const result = new resultBean_1.ResultBean();
         try {
-            updateContent_1.updateFilesContent(name, path, content, beforeContent);
+            updateContent_1.updateFilesContent(name, path, content, time, beforeContent);
             response.json(result.successBean('修改成功'));
         }
         catch (e) {

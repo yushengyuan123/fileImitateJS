@@ -17,7 +17,8 @@ export let create = function (file_name: string, config: {
     //告诉系统你在哪一个目录下创建的文件
     path: string,
     content: string,
-    fileType: file_type
+    fileType: file_type,
+    createTime: string
     recentWriterTime?: string,
     recentReadTime?: string,
 }): void {
@@ -124,9 +125,7 @@ function setDiscBlock(freeRegion: position | boolean, fcb: FCB, type: file_type)
 
     if (typeof free_blocks !== 'boolean') {
         //开始初始化这个盘块的信息和位示图置为1
-        console.log('类型', type)
         if (type === file_type.txt) {
-            console.log('我进来了', free_blocks)
             setViewsOne(free_blocks)
             //盘块的下一个指针赋值
             if (!valuesPointer(free_blocks)) {
@@ -166,6 +165,7 @@ function initFCB(file_name: string, config: {
     path: string,
     content?: string,
     fileType: file_type
+    createTime?: string,
     recentWriterTime?: string,
     recentReadTime?: string,
 }, freeRegion: position | boolean, size: number): FCB {
@@ -195,6 +195,8 @@ function initFCB(file_name: string, config: {
     fcb.recentlyWriteTime = config.recentWriterTime
     //初始化FCB大小
     fcb.size = size
+    //设置创建时间
+    fcb.createTime = config.createTime
 
     return fcb
 }

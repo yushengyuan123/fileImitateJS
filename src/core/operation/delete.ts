@@ -94,7 +94,7 @@ export function deleteFiles(path: string, name: string, type: file_type) {
 function freeDiscSpace(deleteSize: number) {
     if (discSize >= deleteSize) {
         // @ts-ignore
-        discSize -= deleteSize
+        discSize += deleteSize
     } else {
         throw new Error('删除空间大于磁盘空间， 磁盘大小分配错误')
     }
@@ -114,7 +114,7 @@ export function removeFromDisc(needUpdateFCB: FCB) {
 
     for (let i = 0; i < needUpdateFCB.occupy_number - 1; i++) {
         temp = discMemory.getOneDiscBlocksInfo(firstDisc.nextIndex)
-        if (!firstDisc.nextIndex) {
+        if (firstDisc.nextIndex !== null) {
             firstDisc.nextIndex = null
         } else {
             throw new Error('移除指针发生异常，指针原来就是空的')

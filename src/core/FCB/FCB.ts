@@ -29,6 +29,9 @@ export class FCB {
     // 最近读文件的时间
     private _recentlyReadTime: string;
 
+    //创建时间
+    private _createTime: string
+
     constructor() {}
 
     get recentlyReadTime(): string {
@@ -93,5 +96,13 @@ export class FCB {
 
     set type(value: file_type) {
         this._type = value;
+    }
+
+    get createTime(): string {
+        return this._createTime;
+    }
+
+    set createTime(value: string) {
+        this._createTime = value;
     }
 }

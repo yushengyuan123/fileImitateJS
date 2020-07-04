@@ -82,7 +82,7 @@ exports.deleteFiles = deleteFiles;
 function freeDiscSpace(deleteSize) {
     if (index_1.discSize >= deleteSize) {
         // @ts-ignore
-        index_1.discSize -= deleteSize;
+        index_1.discSize += deleteSize;
     }
     else {
         throw new Error('删除空间大于磁盘空间， 磁盘大小分配错误');
@@ -100,7 +100,7 @@ function removeFromDisc(needUpdateFCB) {
     let temp;
     for (let i = 0; i < needUpdateFCB.occupy_number - 1; i++) {
         temp = disc_1.discMemory.getOneDiscBlocksInfo(firstDisc.nextIndex);
-        if (!firstDisc.nextIndex) {
+        if (firstDisc.nextIndex !== null) {
             firstDisc.nextIndex = null;
         }
         else {

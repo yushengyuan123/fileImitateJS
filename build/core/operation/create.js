@@ -67,6 +67,7 @@ function writeFCBInCatalogue(fcb, config, file_name, catalogue) {
             matchStr += '/' + layer[i];
             for (let j = 0; j < temp.child.length; j++) {
                 //路径命中
+                console.log(temp.child[j]);
                 if (matchStr === temp.child[j].path) {
                     temp = temp.child[j];
                     break;
@@ -102,9 +103,7 @@ function setDiscBlock(freeRegion, fcb, type) {
     const free_blocks = viewsUtils_1.getCurrentFreeBlocksIndexAndNumber(occupy_number);
     if (typeof free_blocks !== 'boolean') {
         //开始初始化这个盘块的信息和位示图置为1
-        console.log('类型', type);
         if (type === index_1.file_type.txt) {
-            console.log('我进来了', free_blocks);
             viewsUtils_1.setViewsOne(free_blocks);
             //盘块的下一个指针赋值
             if (!viewsUtils_1.valuesPointer(free_blocks)) {
@@ -170,5 +169,7 @@ function initFCB(file_name, config, freeRegion, size) {
     fcb.recentlyWriteTime = config.recentWriterTime;
     //初始化FCB大小
     fcb.size = size;
+    //设置创建时间
+    fcb.createTime = config.createTime;
     return fcb;
 }

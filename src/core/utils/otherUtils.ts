@@ -32,16 +32,12 @@ export function queryFiles(path: string): queryFilesFormat {
 
     temp = UserRoot[index];
 
-    console.log('当前目录', temp)
-    console.log('当前用户', user)
 
     if (path !== '/') {
         //现在更目录匹配一波
         //寻找创建文件的目录
-        console.log(layer)
         for (let i = 0; i < layer.length; i++) {
             matchStr += '/' + layer[i];
-            console.log('匹配路径', matchStr)
             for (let j = 0; j < temp.child.length; j++) {
                 //路径命中
                 console.log(temp.child[j])
@@ -60,7 +56,10 @@ export function queryFiles(path: string): queryFilesFormat {
             file_name: list[i].file_name,
             size: list[i].size,
             content: list[i].content,
-            file_type: list[i].type
+            file_type: list[i].type,
+            createTime: list[i].createTime,
+            readTime: list[i].recentlyReadTime,
+            writeTime: list[i].recentlyWriteTime
         })
     }
 

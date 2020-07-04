@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const user_1 = require("./user");
 const filesService_1 = require("../service/filesService");
+const disc_1 = require("../service/disc");
 let app = express();
 app.use(bodyParser.json());
 //打开页面加载用户数据
@@ -20,6 +21,20 @@ app.post('/user/*', (request, response) => {
         }
         case '/user/register': {
             user_1.User.register(request, response);
+            break;
+        }
+    }
+});
+app.post('/disc/*', (request, response) => {
+    const path = request.path;
+    /*路由分发接口*/
+    switch (path) {
+        case '/disc/space': {
+            disc_1.Disc.discSpaceService(request, response);
+            break;
+        }
+        case '/disc/views': {
+            disc_1.Disc.getViews(request, response);
             break;
         }
     }

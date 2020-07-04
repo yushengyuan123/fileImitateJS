@@ -6,12 +6,12 @@ const index_1 = require("../index");
 const diskUtils_1 = require("../utils/diskUtils");
 const disc_1 = require("../disc/disc");
 const positionViews_1 = require("../positionViews/positionViews");
-function updateFilesContent(name, path, content, beforeContent) {
+function updateFilesContent(name, path, content, time, beforeContent) {
     //新内容和旧的内容一样就不用检验了
     if (beforeContent === content) {
         return;
     }
-    startUpdate(path, name, content);
+    startUpdate(path, name, content, time);
 }
 exports.updateFilesContent = updateFilesContent;
 /**
@@ -20,8 +20,9 @@ exports.updateFilesContent = updateFilesContent;
  * @param path
  * @param name
  * @param content
+ * @param time
  */
-function startUpdate(path, name, content) {
+function startUpdate(path, name, content, time) {
     const temp = otherUtils_1.entryCatalogue(path);
     //新文本的空间
     let tempSize = 0;
@@ -35,6 +36,7 @@ function startUpdate(path, name, content) {
             //更新内容
             list[i].content = content;
             oldSize = list[i].size;
+            list[i].recentlyWriteTime = time;
             list[i].size = tempSize = create_1.getFileSize(index_1.file_type.txt, content);
             break;
         }

@@ -12,6 +12,7 @@ export function updateFiles(
     name: string,
     beforeName: string,
     path: string,
+    time: string,
     type: file_type
 ): void {
     //新名字和旧的名字一样就不用检验了
@@ -22,7 +23,7 @@ export function updateFiles(
     //todo 假如文件中有/，我肯定出bug
     Verify.pathIsTheSame(path, name);
 
-    updateFolder(name, beforeName, path, type);
+    updateFolder(name, beforeName, path, time, type);
 }
 
 /**
@@ -31,12 +32,14 @@ export function updateFiles(
  * @param name
  * @param path
  * @param beforeName
+ * @param time
  * @param type
  */
 export function updateFolder(
     name: string,
     beforeName: string,
     path: string,
+    time: string,
     type: file_type
 ): void {
     const temp: Catalogue = entryCatalogue(path);
@@ -46,10 +49,10 @@ export function updateFolder(
         if (list[i].file_name === beforeName) {
             //更新名字
             list[i].file_name = name;
+            list[i].recentlyWriteTime = time
             break
         }
     }
-
 
     //假如是文件夹则需要更新路径，否则不需要
     //而且这个路径更改整一个在目录下的文件路径全部都要改

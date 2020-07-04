@@ -17,14 +17,14 @@ import {position} from "./interface";
 import {views} from "../positionViews/positionViews";
 
 export function updateFilesContent(
-    name: string, path: string, content: string, beforeContent: string) {
+    name: string, path: string, content: string, time:string, beforeContent: string) {
 
     //新内容和旧的内容一样就不用检验了
     if (beforeContent === content) {
         return
     }
 
-    startUpdate(path, name, content)
+    startUpdate(path, name, content, time)
 }
 
 /**
@@ -33,8 +33,9 @@ export function updateFilesContent(
  * @param path
  * @param name
  * @param content
+ * @param time
  */
-export function startUpdate(path: string, name: string, content) {
+export function startUpdate(path: string, name: string, content, time) {
     const temp: Catalogue = entryCatalogue(path);
     //新文本的空间
     let tempSize: number = 0;
@@ -50,6 +51,7 @@ export function startUpdate(path: string, name: string, content) {
             //更新内容
             list[i].content = content;
             oldSize = list[i].size
+            list[i].recentlyWriteTime = time
             list[i].size = tempSize = getFileSize(file_type.txt, content);
             break
         }

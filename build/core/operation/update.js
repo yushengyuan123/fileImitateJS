@@ -8,14 +8,14 @@ const otherUtils_1 = require("../utils/otherUtils");
  * 这里要更新几个东西第一个当内容更新的时候对应的磁盘位示图可能要变，磁盘分区可能会有所增加。
  * FCB信息需要改变
  */
-function updateFiles(name, beforeName, path, type) {
+function updateFiles(name, beforeName, path, time, type) {
     //新名字和旧的名字一样就不用检验了
     if (beforeName === name) {
         return;
     }
     //todo 假如文件中有/，我肯定出bug
     verify_1.Verify.pathIsTheSame(path, name);
-    updateFolder(name, beforeName, path, type);
+    updateFolder(name, beforeName, path, time, type);
 }
 exports.updateFiles = updateFiles;
 /**
@@ -24,15 +24,17 @@ exports.updateFiles = updateFiles;
  * @param name
  * @param path
  * @param beforeName
+ * @param time
  * @param type
  */
-function updateFolder(name, beforeName, path, type) {
+function updateFolder(name, beforeName, path, time, type) {
     const temp = otherUtils_1.entryCatalogue(path);
     //更新名字
     for (let i = 0, list = temp.files_list; i < list.length; i++) {
         if (list[i].file_name === beforeName) {
             //更新名字
             list[i].file_name = name;
+            list[i].recentlyWriteTime = time;
             break;
         }
     }
